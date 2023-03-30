@@ -22,7 +22,7 @@ These are the requisites for running this code:
 ## Usage
 To run the script, use the following command:
 ```
-python optimized.py [arguments]
+python check_annotation.py [arguments]
 ```
 The following options are available:
 * **`-s`**: Specify the input Selenoprofiles GTF file
