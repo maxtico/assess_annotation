@@ -22,16 +22,16 @@ These are the requisites for running this code:
 ## Usage
 To run the script, use the following command:
 ```
-python check_annotation.py [arguments]
+python check_annotations.py [arguments]
 ```
 The following options are available:
-* **`-s`**: Specify the input Selenoprofiles GTF file
-* **`-e`**: Specify the input genome GFF3 file
-* **`-f`**: Specify the input genome Fasta file
-* **`-o`**: Specify the name of the output csv table containing annotation for each Ensembl transcript
-* **`-agg`**: Specify the name of the output csv aggregate table
-* **`-cs`**: Specify the name of the column which will be taken as ID to work with. Default is **transcript_id**
-* **`-cg`**: Specify the name of the column which will be taken as ID to work with. Default is **ID**
+* **`-s`**: Specify the input Selenoprofiles file in GTF or GFF format.
+* **`-e`**: Specify the input genome file in GFF3 or GTF format.
+* **`-f`**: Specify the input genome Fasta file.
+* **`-o`**: Specify the name of the output csv table containing annotation for each Ensembl transcript.
+* **`-agg`**: Specify the name of the output csv aggregate table.
+* **`-cs`**: Specify the name of the column which will be taken as ID to work with. Default is **transcript_id**.
+* **`-cg`**: Specify the name of the column which will be taken as ID to work with. Default is **ID**.
 
 Note that if any the input or output files are not specified the script will crash. For more information, see [Script description](#script-description).
 
@@ -73,4 +73,4 @@ If you have any questions or feedback about the script, please feel free to emai
 **__max.tico@alumni.esci.upf.edu__**
 
 ## Acknowledgements
-This script uses **selenoprofiles4** to generate the input for the script. **selenoprofiles4** is a homology-based in silico method to scan genomes for members of the known eukaryotic selenoprotein families. We would like to thank the developers of **selenoprofiles4** for their contributions to the open source community
+This script uses **selenoprofiles4** to generate the input for the script. **selenoprofiles4** is a homology-based in silico method to scan genomes for members of the known eukaryotic selenoprotein families. We would like to thank the developers of **selenoprofiles4** for their contributions to the open source community.
