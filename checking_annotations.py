@@ -8,11 +8,11 @@ help_msg="""This program obtains two tables containing the annotations for all s
 ### Input/Output:
 -s Specify the input Selenoprofiles file in GTF or GFF format.
 -e Specify the input genome file in GFF3 or GTF format. 
--f Specify the input genome Fasta file
--o Specify the name of the output csv table containing annotation for each Ensembl transcript
--agg Specify the name of the output csv aggregate table
--cs Specify the name of the column which will be taken as ID to work with. Default is transcript_id
--cg Specify the name of the column which will be taken as ID to work with. Default is ID
+-f Specify the input genome Fasta file.
+-o Specify the name of the output csv table containing annotation for each Ensembl transcript.
+-agg Specify the name of the output csv aggregate table.
+-cs Specify the name of the column which will be taken as ID to work with. Default is transcript_id.
+-cg Specify the name of the column which will be taken as ID to work with. Default is ID.
 
 Note that if any the input or output files are not specified the script will crash
 
