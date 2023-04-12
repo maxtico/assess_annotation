@@ -383,6 +383,8 @@ def main(args={}):
     else:
       if (df.Feature=='Selenocysteine').any():
         return df[df.Feature != 'Selenocysteine']
+      else:
+        return df
 
   min_df2=min_df.groupby(opt['cs'],as_index=False).apply(lambda x: fn(x))
   min_df2.reset_index(drop=True,inplace=True)
