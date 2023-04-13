@@ -22,7 +22,7 @@ These are the requisites for running this code:
 ## Usage
 To run the script, use the following command:
 ```
-python check_annotations.py [arguments]
+python checking_annotations.py [arguments]
 ```
 The following options are available:
 * **`-s`**: Specify the input Selenoprofiles file in GTF or GFF format.
