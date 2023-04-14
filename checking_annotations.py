@@ -403,7 +403,7 @@ def main(args={}):
   agg=agg[['transcript_id_ens','Type_annotation']]
 
   #Saving to an output file
-  min_df2.to_csv(opt['o'], sep="\t")
+  min_df2.to_csv(opt['o'], sep="\t",index=False)
   agg.to_csv(opt['agg'], sep="\t")
 
 if __name__ == "__main__":
