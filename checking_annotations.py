@@ -336,21 +336,24 @@ def main(args={}):
   #####OUT OF FRAME CASES
 
   #Finding CDS which contain selenocysteines
-  merge=cds.join(sec,suffix="_sel")
-  merge=merge.as_df()
+  if sec.empty==False:
+    merge=cds.join(sec,suffix="_sel")
+    merge=merge.as_df()
 
-  #Dropping columns
-  result_clean=merge.drop(merge.filter(regex='_sel').columns, axis=1)
+    #Dropping columns
+    result_clean=merge.drop(merge.filter(regex='_sel').columns, axis=1)
 
-  #Filtering for out of frame CDS
-  exons=result_clean[result_clean['Frame_genome']!=result_clean['Frame_genome_ens']]
+    #Filtering for out of frame CDS
+    exons=result_clean[result_clean['Frame_genome']!=result_clean['Frame_genome_ens']]
 
-  #Saving those cases
-  exons=exons[exons['Start_ens']!=-1]
-  out_of_frame=exons.drop_duplicates()
+    #Saving those cases
+    exons=exons[exons['Start_ens']!=-1]
+    out_of_frame=exons.drop_duplicates()
 
-  #Convert annotation into dataframe to manipulate it correctly
-  annotation_ok=pd.concat([annotation_final,out_of_frame])
+    #Convert annotation into dataframe to manipulate it correctly
+    annotation_ok=pd.concat([annotation_final,out_of_frame])
+  else:
+    annotation_ok=annotation_final
   annotation_final=annotation_ok.reset_index(drop=True) 
 
   #ASSESSING ANNOTATIONS
