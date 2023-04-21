@@ -265,7 +265,7 @@ def main(args={}):
 
   #To work only with desired colums where ID is ensembl transcript ID and transcript_id is from Selenoprofile transcripts
   sel_cor=seleno_file[["Source","Strand","Feature",opt['cs']]]
-  ens_cor=ensembl_nosc[["Source","Strand","Feature","gene_id",'transcript_id_ens']]
+  ens_cor=ensembl_nosc[["Source","Strand","Feature",'transcript_id_ens']]
 
   #Converting ensembl Feature column into category type
   ens_cor=ens_cor.as_df()
