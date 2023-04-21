@@ -277,9 +277,12 @@ def main(args={}):
   ens_cor=pr.PyRanges(ens_cor, int64=True)
   sel_cor=sel_cor.as_df()
   secs= sel_cor[sel_cor[opt['cs']].str.contains(":")]
-  secs[opt['cs']]=secs[opt['cs']].str.split(":",expand=True)[1]
-  sel_cor.loc[(sel_cor.index.isin(secs.index)) , opt['cs']] = secs[opt['cs']]
-  sel_cor=pr.PyRanges(sel_cor, int64=True)
+  if secs.empty:
+    sel_cor=pr.PyRanges(sel_cor, int64=True)
+  else:
+    secs[opt['cs']]=secs[opt['cs']].str.split(":",expand=True)[1]
+    sel_cor.loc[(sel_cor.index.isin(secs.index)) , opt['cs']] = secs[opt['cs']]
+    sel_cor=pr.PyRanges(sel_cor, int64=True)
 
   #CALCULATING FRAMES
 
