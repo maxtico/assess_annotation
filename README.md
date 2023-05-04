@@ -32,6 +32,10 @@ The following options are available:
 * **`-agg`**: Specify the name of the output csv aggregate table.
 * **`-cs`**: Specify the name of the column which will be taken as ID to work with. Default is **transcript_id**.
 * **`-cg`**: Specify the name of the column which will be taken as ID to work with. Default is **ID**.
+* **`-stop`**: Specify if stop codons are removed and how. Three options available: 'auto', 'all' and 'no'. Default is 'auto'.
+               'auto': In case some genome transcripts have stop codons and some not. Searches for transcripts with stop codons and removes them.
+               'all': The last three positions from each genome transcript are removed, without performing any search.
+               'no': Assumes there are no stop codons in genome transcripts, so they aren't removed.
 
 Note that if any the input or output files are not specified the script will crash. For more information, see [Script description](#script-description).
 
