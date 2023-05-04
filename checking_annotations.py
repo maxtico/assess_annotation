@@ -1,4 +1,5 @@
 import pyranges as pr
+import pyranges as pr
 import pandas as pd
 import numpy as np
 from easyterm import command_line_options
@@ -11,8 +12,12 @@ help_msg="""This program obtains two tables containing the annotations for all s
 -f Specify the input genome Fasta file.
 -o Specify the name of the output csv table containing annotation for each Ensembl transcript.
 -agg Specify the name of the output csv aggregate table.
--cs Specify the name of the column which will be taken as ID to work with. Default is transcript_id.
--cg Specify the name of the column which will be taken as ID to work with. Default is ID.
+-cs Specify the name of selenoprofiles column which will be taken as ID to work with. Default is transcript_id.
+-cg Specify the name of input genome's column which will be taken as ID to work with. Default is ID.
+-stop Specify if stop codons are removed and how. Three options available: 'auto', 'all' and 'no'. Default is 'auto'.
+      'auto': In case some genome transcripts have stop codons and some not. Searches for transcripts with stop codons and removes them.
+      'all': The last three positions from each genome transcript are removed, without performing any search.
+      'no': Assumes there are no stop codons in genome transcripts, so they aren't removed.
 
 Note that if any the input or output files are not specified the script will crash
 
@@ -25,7 +30,7 @@ Thus, annotations are based on overlaps between Selenoprofiles predicted genes a
 See https://github.com/maxtico/assess_annotation for more information.
 """
 
-def_opt={'s':'selenoprofiles input gff file','e': 'ensembl input gff3 file','f':'fasta file','o':'','agg':'','cs':'transcript_id','cg':'ID'}
+def_opt={'s':'selenoprofiles input gff file','e': 'ensembl input gff3 file','f':'fasta file','o':'','agg':'','cs':'transcript_id','cg':'ID','stop':'auto'}
 
 def main(args={}):
   
@@ -222,40 +227,45 @@ def main(args={}):
   CDS_df=pr.PyRanges(CDS_df,int64=True)
 
   ##REMOVING STOP CODONS 
-  
-  print("\n*******************************")
-  print("Removing stop codons...")
-  print("*******************************")
+  if (opt['stop']=='auto'):
+    print("\n*******************************")
+    print("Removing stop codons...")
+    print("*******************************")
 
   
-  #Getting the stop codons from the transcripts
-  last_codons = CDS_df.spliced_subsequence(-3, by='transcript_id_ens' ) #Aqui selecciones els intervals de les ulimes tres posicions del gff3
+    #Getting the stop codons from the transcripts
+    last_codons = CDS_df.spliced_subsequence(-3, by='transcript_id_ens' ) #Aqui selecciones els intervals de les ulimes tres posicions del gff3
 
-  #We get the spliced sequence for each transcript
-  last_codons_seq = pr.get_transcript_sequence(last_codons, path=opt['f'], group_by='transcript_id_ens')
+    #We get the spliced sequence for each transcript
+    last_codons_seq = pr.get_transcript_sequence(last_codons, path=opt['f'], group_by='transcript_id_ens')
 
-  #Define stop codons
-  stop_codons=['TGA','TAA','TAG']
+    #Define stop codons
+    stop_codons=['TGA','TAA','TAG']
 
-  #Create a column to know which are stop codons and which not
-  last_codons_seq.has_stop = last_codons_seq.Sequence.isin(stop_codons) #Hi havia seq.Sequence
+    #Create a column to know which are stop codons and which not
+    last_codons_seq.has_stop = last_codons_seq.Sequence.isin(stop_codons) 
 
-  #Save the IDs of the sequences which contain stop codons
-  has_stop_ids = last_codons.transcript_id_ens[last_codons_seq.has_stop]
+    #Save the IDs of the sequences which contain stop codons
+    has_stop_ids = last_codons.transcript_id_ens[last_codons_seq.has_stop]
 
-  #Removing those transcripts which contain stop codons
-  nc_df=CDS_df[CDS_df.transcript_id_ens.isin(has_stop_ids)] #Transcripts WITH stop codons
-  sc_df=CDS_df[~(CDS_df.transcript_id_ens.isin(has_stop_ids))] #Transcripts with NO stop codons
+    #Removing those transcripts which contain stop codons
+    nc_df=CDS_df[CDS_df.transcript_id_ens.isin(has_stop_ids)] #Transcripts WITH stop codons
+    sc_df=CDS_df[~(CDS_df.transcript_id_ens.isin(has_stop_ids))] #Transcripts with NO stop codons
 
-  #Removing the stop codons from the transcripts
-  no_stop_df=nc_df.spliced_subsequence(0,-3,by='transcript_id_ens')
+    #Removing the stop codons from the transcripts
+    no_stop_df=nc_df.spliced_subsequence(0,-3,by='transcript_id_ens')
 
-  no_stop_df=no_stop_df.as_df()
-  sc_df=sc_df.as_df()
-  #Concatenation of the two dataframes in a single ENSEMBL GFF in order to apply our conditions
-  ensembl_nosc=pd.concat([sc_df,no_stop_df],ignore_index=True)
-  ensembl_nosc=pr.PyRanges(ensembl_nosc)
+    no_stop_df=no_stop_df.as_df()
+    sc_df=sc_df.as_df()
+    #Concatenation of the two dataframes in a single ENSEMBL GFF in order to apply our conditions
+    ensembl_nosc=pd.concat([sc_df,no_stop_df],ignore_index=True)
+    ensembl_nosc=pr.PyRanges(ensembl_nosc)
+  
+  elif opt['stop']=='all':
+    ensembl_nosc=CDS_df.spliced_subsequence(-3, by='transcript_id_ens')
 
+  else:
+    ensembl_nosc=CDS_df
   #PREPROCESSING 
 
   print("\n*******************************")
@@ -342,7 +352,7 @@ def main(args={}):
 
     #Dropping columns
     result_clean=merge.drop(merge.filter(regex='_sel').columns, axis=1)
-
+  
     #Filtering for out of frame CDS
     exons=result_clean[result_clean['Frame_genome']!=result_clean['Frame_genome_ens']]
 
@@ -409,9 +419,8 @@ def main(args={}):
   agg=agg[['transcript_id_ens','Type_annotation']]
 
   #Saving to an output file
-  min_df2.to_csv(opt['o'], sep="\t",index=False)
+  min_df2.to_csv(opt['o'], sep="\t", index=False)
   agg.to_csv(opt['agg'], sep="\t")
 
 if __name__ == "__main__":
   main()
-
