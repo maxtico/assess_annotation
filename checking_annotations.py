@@ -1,5 +1,4 @@
 import pyranges as pr
-import pyranges as pr
 import pandas as pd
 import numpy as np
 from easyterm import command_line_options
@@ -239,14 +238,12 @@ def main(args={}):
     #We get the spliced sequence for each transcript
     last_codons_seq = pr.get_transcript_sequence(last_codons, path=opt['f'], group_by='transcript_id_ens')
 
-    #Define stop codons
-    stop_codons=['TGA','TAA','TAG']
-
     #Create a column to know which are stop codons and which not
-    last_codons_seq.has_stop = last_codons_seq.Sequence.isin(stop_codons) 
+    last_codons_seq.Sequence=last_codons_seq.Sequence.str.upper()
+    has_stop = last_codons_seq.Sequence.isin({'TGA','TAA','TAG'}) 
 
     #Save the IDs of the sequences which contain stop codons
-    has_stop_ids = last_codons.transcript_id_ens[last_codons_seq.has_stop]
+    has_stop_ids = last_codons_seq[has_stop].transcript_id_ens
 
     #Removing those transcripts which contain stop codons
     nc_df=CDS_df[CDS_df.transcript_id_ens.isin(has_stop_ids)] #Transcripts WITH stop codons
@@ -305,7 +302,7 @@ def main(args={}):
   calculate_frame(ens_cor,by='transcript_id_ens')
   #Creating genome frame
   ens_cor=ens_cor.as_df()
-  ens_cor.loc[ens_cor.Strand=='+', 'Frame_genome']= (ens_cor[ens_cor.Strand=='+']['Start']+ens_cor[ens_cor.Strand=='+']['Frame'])%3
+  ens_cor.loc[ens_cor.Strand=='+', 'Frame_genome']= (ens_cor[ens_cor.Strand=='+']['Start']-ens_cor[ens_cor.Strand=='+']['Frame'])%3
   ens_cor.loc[ens_cor.Strand=='-', 'Frame_genome']= (ens_cor[ens_cor.Strand=='-']['End']+ens_cor[ens_cor.Strand=='-']['Frame'])%3
   ens_cor=pr.PyRanges(ens_cor, int64=True)
 
@@ -326,7 +323,7 @@ def main(args={}):
   ## Now Frame is the frame of CDS intervals for those for which Feature == 'CDS', and for Selenocysteine features, it is the frame of the CDS interval that contains them
   sel_cor=pd.concat([sel_CDS,sel_frame]) 
   #Creating genome frame column
-  sel_cor.loc[sel_cor.Strand=='+', 'Frame_genome']= (sel_cor[sel_cor.Strand=='+']['Start']+sel_cor[sel_cor.Strand=='+']['Frame'])%3
+  sel_cor.loc[sel_cor.Strand=='+', 'Frame_genome']= (sel_cor[sel_cor.Strand=='+']['Start']-sel_cor[sel_cor.Strand=='+']['Frame'])%3
   sel_cor.loc[sel_cor.Strand=='-', 'Frame_genome']= (sel_cor[sel_cor.Strand=='-']['End']+sel_cor[sel_cor.Strand=='-']['Frame'])%3
   sel_cor=pr.PyRanges(sel_cor,int64=True) 
 
@@ -424,3 +421,4 @@ def main(args={}):
 
 if __name__ == "__main__":
   main()
+
