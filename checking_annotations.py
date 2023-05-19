@@ -138,69 +138,76 @@ def main(args={}):
   
     #Get the selenocysteines which match with our transcripts
     Sec=df_sec[df_sec[opt['cs']].isin(df[opt['cs']])] #Add ensembl id
-  
-    #Condition for missing transcripts
-    if (df['transcript_id_ens']=='-1').all():
-      df['Type_annotation']='Missing'
 
-    #Condition for out of frame transcripts
-    elif ((df['Feature']=='CDS') & (df['Frame_genome']!=df['Frame_genome_ens'])).any():
-      df['Type_annotation']='Out of frame'
+    if (df['Strand']==df['Strand_ens']).all():
   
-    #Condition for well annotated transcripts
-    elif ((df['Feature']=='Selenocysteine') & (df['transcript_id_ens']!='-1')).any(): 
-      df['Type_annotation']='Well annotated'
+      #Condition for missing transcripts
+      if (df['transcript_id_ens']=='-1').all():
+        df['Type_annotation']='Missing'
 
-    #Check for different types of misannotations
-    else:
-      #Creating a temporary dataframe to store the df lines with the selenocysteine line/s
-      temp_df=pd.merge(Sec, df, on=opt['cs'], suffixes=('_Sec','_all'))
+      #Condition for out of frame transcripts
+      elif ((df['Feature']=='CDS') & (df['Frame_genome']!=df['Frame_genome_ens'])).any():
+        df['Type_annotation']='Out of frame'
+  
+      #Condition for well annotated transcripts
+      elif ((df['Feature']=='Selenocysteine') & (df['transcript_id_ens']!='-1') & (df['Overlap']==3)).any(): 
+        df['Type_annotation']='Well annotated'
+
+      elif ((df['Feature']=='Selenocysteine') & (df['transcript_id_ens']!='-1') & (df['Overlap']!=3)).any(): 
+          df['Type_annotation']='Spliced'
+
+      #Check for different types of misannotations
+      else:
+        #Creating a temporary dataframe to store the df lines with the selenocysteine line/s
+        temp_df=pd.merge(Sec, df, on=opt['cs'], suffixes=('_Sec','_all'))
     
-      #Checking for + strand
-      if (temp_df['Strand_Sec']=='+').all():
+        #Checking for + strand
+        if (temp_df['Strand_Sec']=='+').all():
       
-        #For stop codon cases
-        if (temp_df['Start_Sec'] == temp_df['End_ens_all']).any():
-          df['Type_annotation']='Stop codon'
+          #For stop codon cases
+          if (temp_df['Start_Sec'] == temp_df['End_ens_all']).any():
+            df['Type_annotation']='Stop codon'
         
-        #For skipped cases
-        elif ((temp_df['Start_Sec'] > temp_df['End_ens_all']).any() and (temp_df['End_Sec']<= temp_df['Start_ens_all']).any()):
-          df['Type_annotation']='Skipped'
+          #For skipped cases
+          elif ((temp_df['Start_Sec'] > temp_df['End_ens_all']).any() and (temp_df['End_Sec']<= temp_df['Start_ens_all']).any()):
+            df['Type_annotation']='Skipped'
        
-        #For upstream cases
-        elif (temp_df['Start_Sec'] > temp_df['End_ens_all']).any():
-          df['Type_annotation']='Upstream'
+          #For upstream cases
+          elif (temp_df['Start_Sec'] > temp_df['End_ens_all']).any():
+            df['Type_annotation']='Upstream'
     
-        #For downstream cases
-        elif (temp_df['End_Sec']<= temp_df['Start_ens_all']).any():
-          df['Type_annotation']='Downstream'
+          #For downstream cases
+          elif (temp_df['End_Sec']<= temp_df['Start_ens_all']).any():
+            df['Type_annotation']='Downstream'
       
-        #For other cases
-        else:
-          df['Type_annotation']='Other'
+          #For other cases
+          else:
+            df['Type_annotation']='Other'
     
-      #Checking for - strand
-      elif (temp_df['Strand_Sec']=='-').all():
+        #Checking for - strand
+        elif (temp_df['Strand_Sec']=='-').all():
       
-        if (temp_df['End_Sec'] == temp_df['Start_ens_all']).any():
-          df['Type_annotation']='Stop codon'
+          if (temp_df['End_Sec'] == temp_df['Start_ens_all']).any():
+            df['Type_annotation']='Stop codon'
       
-        #For skipped cases
-        elif ((temp_df['Start_Sec'] >= temp_df['End_ens_all']).any() and (temp_df['End_Sec']< temp_df['Start_ens_all']).any()):
-          df['Type_annotation']='Skipped'
+          #For skipped cases
+          elif ((temp_df['Start_Sec'] >= temp_df['End_ens_all']).any() and (temp_df['End_Sec']< temp_df['Start_ens_all']).any()):
+            df['Type_annotation']='Skipped'
        
-        #For upstream cases
-        elif (temp_df['End_Sec']< temp_df['Start_ens_all']).any():
-          df['Type_annotation']='Upstream'
+          #For upstream cases
+          elif (temp_df['End_Sec']< temp_df['Start_ens_all']).any():
+            df['Type_annotation']='Upstream'
       
-        #For downstream cases
-        elif (temp_df['Start_Sec'] >= temp_df['End_ens_all']).any():
-          df['Type_annotation']='Downstream'
+          #For downstream cases
+          elif (temp_df['Start_Sec'] >= temp_df['End_ens_all']).any():
+            df['Type_annotation']='Downstream'
       
-        #For other cases
-        else:
-          df['Type_annotation']='Other'
-   
+          #For other cases
+          else:
+            df['Type_annotation']='Other'
+    else:
+      df['Type_annotation']='Other'
+
     return df
 
   print("*******************************")
@@ -328,7 +335,7 @@ def main(args={}):
   sel_cor=pr.PyRanges(sel_cor,int64=True) 
 
   #Join the ensembl transcript + selenocysteine position in a new pyranges
-  annotation=sel_cor.join(ens_cor, how="left", suffix='_ens') 
+  annotation=sel_cor.join(ens_cor, how="left", suffix='_ens',report_overlap=True) 
 
   #Useful for out_of_frame cases
   cds=annotation[annotation.Feature=='CDS']
@@ -405,7 +412,7 @@ def main(args={}):
 
   #Type annotation + hierarchy value
   agg_df=min_df.groupby(opt['cs'],as_index=False).apply(lambda x: fn(x))
-  agg_df['Type_annotation']=agg_df['Type_annotation'].replace(['Upstream','Downstream','Stop codon','Out of frame','Skipped'],'Missannotation')
+  agg_df['Type_annotation']=agg_df['Type_annotation'].replace(['Upstream','Downstream','Stop codon','Out of frame','Skipped','Spliced'],'Missannotation')
 
   #Sorting by hierarchy
   hierarchy=['Well annotated','Missannotation','Missing']
