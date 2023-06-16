@@ -139,6 +139,9 @@ def main(args={}):
     #Get the selenocysteines which match with our transcripts
     Sec=df_sec[df_sec[opt['cs']].isin(df[opt['cs']])] #Add ensembl id
 
+    #Get the selenocysteines for our specific transcript_id_ens
+    Sp_sec=Sec[Sec['transcript_id_ens'].isin(df['transcript_id_ens'])]
+
     if (df['Strand']==df['Strand_ens']).all():
   
       #Condition for missing transcripts
@@ -150,7 +153,7 @@ def main(args={}):
         df['Type_annotation']='Out of frame'
   
       #Condition for well annotated transcripts
-      elif ((df['Feature']=='Selenocysteine') & (df['transcript_id_ens']!='-1') & (df['Overlap']==3)).any(): 
+      elif not Sp_sec.empty and ((Sp_sec['Feature']=='Selenocysteine') & (Sp_sec['transcript_id_ens']!='-1') & (Sp_sec['Overlap']==3)).all(): 
         df['Type_annotation']='Well annotated'
 
       elif ((df['Feature']=='Selenocysteine') & (df['transcript_id_ens']!='-1') & (df['Overlap']!=3)).any(): 
@@ -396,10 +399,7 @@ def main(args={}):
 
   def fn(df):
     if not (df.Type_annotation == 'Missing').all():
-      if (df.Type_annotation == 'Missing').any():
-        return df[df.Type_annotation != 'Missing']
-      else:
-        return df[df.Feature != 'Selenocysteine']
+        return df[(df.Type_annotation != 'Missing') & (df.Feature != 'Selenocysteine')]
     else:
       if (df.Feature=='Selenocysteine').any():
         return df[df.Feature != 'Selenocysteine']
