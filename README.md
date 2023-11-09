@@ -52,7 +52,7 @@ havana  CDS     80211251        80211472        .       -       0       ID=CDS:E
 ```
 To run this script and save the first output to a file named **homo_sapiens.csv** and the aggregate table to a file named **homo_sapiens_aggregate.csv**, you can use the following command:
 ```
-python optimized.py -s homo_sapiens_selenoprofiles.gtf -e Homo_sapiens.GRCh38.108.gff3 -f Homo_sapiens.GRCh38.dna.toplevel.fa -o homo_sapiens.csv -agg homo_sapiens_aggregate.csv
+python checking_annotations.py -s homo_sapiens_selenoprofiles.gtf -e Homo_sapiens.GRCh38.108.gff3 -f Homo_sapiens.GRCh38.dna.toplevel.fa -o homo_sapiens.csv -agg homo_sapiens_aggregate.csv
 ```
 The script will process the input files and generate the output tables. **homo_sapiens.csv** table will have the following contents:
 ```
