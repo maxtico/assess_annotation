@@ -252,10 +252,8 @@ def main(args={}):
     print("*******************************")
 
     # File inputs for ensembl ans selenoprofiles
-    if ".gff3" in opt["e"]:
+    if ".gff3" or ".gff" in opt["e"]:
         genome_pyr = pr.read_gff3(opt["e"])
-    elif ".gff" in opt["e"]:
-        genome_pyr = pr.read_gff(opt["e"])
     else:
         genome_pyr = pr.read_gtf(opt["e"])
 
