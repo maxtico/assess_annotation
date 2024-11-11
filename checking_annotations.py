@@ -187,7 +187,7 @@ def ass_ann(df,sec):
            # Checking for + strand
            if (temp_df["Strand_Sec"] == "+").all():
                 # For stop codon cases
-                if (temp_df["Start_Sec"] == temp_df["End_ens_all"]).any():
+                if (temp_df["Start_Sec"] == temp_df["End_ens_all"]).any() and not (temp_df["End_Sec"]<temp_df["Start_ens_all"]).any():
                    df["Type_annotation"] = "Stop codon"
 
                 # For skipped cases
@@ -210,7 +210,7 @@ def ass_ann(df,sec):
 
            # Checking for - strand
            elif (temp_df["Strand_Sec"] == "-").all():
-                if (temp_df["End_Sec"] == temp_df["Start_ens_all"]).any():
+                if (temp_df["End_Sec"] == temp_df["Start_ens_all"]).any() and not (temp_df["Start_Sec"]<temp_df["End_ens_all"]).any():
                    df["Type_annotation"] = "Stop codon"
 
                 # For skipped cases
